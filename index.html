@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Darts Scoreboard</title>
+<style>
+        :root {
+            --primary-dark: #1a237e;
+            --primary-light: #c5cae9;
+            --secondary: #303f9f;
+            --highlight: #3f51b5;
+            --text-light: #f5f5f5;
+            --text-dark: #212121;
+            --border: #bdbdbd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .menu {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .menu-item {
+            cursor: pointer;
+            padding: 5px;
+            font-size: 14px;
+        }
+        
+        .menu-item:hover {
+            text-decoration: underline;
+        }
+        
+        .game-settings {
+            padding: 10px 15px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .scoreboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .player-section {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .player-first {
+            font-size: 14px;
+            font-style: italic;
+        }
+        
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .score-table th, .score-table td {
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            text-align: center;
+        }
+        
+        .score-table th {
+            background-color: var(--primary-light);
+            color: var(--text-dark);
+            font-weight: normal;
+        }
+        
+        .turn-column {
+            background-color: #e3f2fd;
+            width: 40px;
+        }
+        
+        .stats-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .stats-table tr td {
+            padding: 6px 15px;
+            font-size: 14px;
+        }
+        
+        .stats-table tr td:nth-child(1) {
+            text-align: right;
+        }
+        
+        .stats-table tr td:nth-child(2) {
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .current-score {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 80px;
+        }
+        
+        .current-player {
+            background-color: var(--highlight);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .inactive-player {
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .controls {
+            background-color: #f5f5f5;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
+        }
+        
+        .input-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        input[type="text"] {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        select {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background-color: var(--highlight);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .scored-value {
+            position: relative;
+        }
+        
+        .scored-circle {
+            position: relative;
+        }
+        
+        .scored-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #2196F3;
+            z-index: 1;
+        }
+        
+        .game-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .averages {
+            border-top: 1px solid var(--border);
+            padding: 8px 15px;
+            font-size: 14px;
+            color: blue;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .game-container {
+                max-width: 100%;
+            }
+            
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .player-header {
+                font-size: 16px;
+            }
+            
+            .score-table th, .score-table td {
+                padding: 6px 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+<div class="header">
+<div>Darts Scoreboard - <span id="game-type-display">501</span></div>
+<div class="menu">
+<div class="menu-item">Game</div>
+<div class="menu-item">View</div>
+<div class="menu-item">Score</div>
+<div class="menu-item">Help</div>
+</div>
+</div>
+<div class="game-settings">
+<div class="setting-group">
+<label for="game-type">Gra:</label>
+<select id="game-type">
+<option value="501">501</option>
+<option value="301">301</option>
+</select>
+</div>
+<div class="setting-group">
+<label for="player1-name">Gracz 1:</label>
+<input id="player1-name" placeholder="Gracz 1" type="text" value="Gracz 1"/>
+</div>
+<div class="setting-group">
+<label for="player2-name">Gracz 2:</label>
+<input id="player2-name" placeholder="Gracz 2" type="text" value="Gracz 2"/>
+</div>
+<button id="apply-settings">Zastosuj</button>
+</div>
+<div class="scoreboard">
+<div class="player-section">
+<div class="player-header">
+<div id="player1-header">Gracz 1</div>
+<div class="player-first">- First -</div>
+</div>
+<table class="score-table">
+<thead>
+<tr>
+<th class="turn-column">Turn</th>
+<th>Scored</th>
+<th>To Go</th>
+</tr>
+</thead>
+<tbody id="player1-scores">
+<!-- Scores will be added dynamically -->
+</tbody>
+</table>
+</div>
+<div class="player-section">
+<div class="player-header">
+<div id="player2-header">Gracz 2</div>
+</div>
+<table class="score-table">
+<thead>
+<tr>
+<th class="turn-column">Turn</th>
+<th>Scored</th>
+<th>To Go</th>
+</tr>
+</thead>
+<tbody id="player2-scores">
+<!-- Scores will be added dynamically -->
+</tbody>
+</table>
+</div>
+</div>
+<div class="stats-section">
+<table class="stats-table">
+<tr><td>Legs:</td><td id="p1-legs">0</td></tr>
+<tr><td>100+:</td><td id="p1-100">0</td></tr>
+<tr><td>140+:</td><td id="p1-140">0</td></tr>
+<tr><td>180's:</td><td id="p1-180">0</td></tr>
+<tr><td>High Out:</td><td id="p1-high-out">0</td></tr>
+<tr><td>Best:</td><td id="p1-best">0</td></tr>
+</table>
+<table class="stats-table">
+<tr><td>Legs:</td><td id="p2-legs">0</td></tr>
+<tr><td>100+:</td><td id="p2-100">0</td></tr>
+<tr><td>140+:</td><td id="p2-140">0</td></tr>
+<tr><td>180's:</td><td id="p2-180">0</td></tr>
+<tr><td>High Out:</td><td id="p2-high-out">0</td></tr>
+<tr><td>Best:</td><td id="p2-best">0</td></tr>
+</table>
+</div>
+<div class="averages">
+<div id="p1-average">Gracz 1 Średnia: 0.00</div>
+<div id="p2-average">Gracz 2 Średnia: 0.00</div>
+</div>
+<div class="current-score">
+<div class="current-player" id="p1-current">501</div>
+<div class="inactive-player" id="p2-current">501</div>
+</div>
+<div class="controls">
+<div class="input-score">
+<input id="score-input" max="180" min="0" placeholder="Score" type="number"/>
+<button id="enter-score">Enter Score</button>
+</div>
+<div class="game-actions">
+<button id="undo-btn">Undo</button>
+<button id="new-leg-btn">New Leg</button>
+<button id="new-game-btn">New Game</button>
+</div>
+</div>
+</div>
+<script>
+        // Game state
+        const gameState = {
+            startingScore: 501,
+            currentPlayer: 0, // Player 1 starts (index 0)
+            players: [
+                {
+                    name: "Gracz 1",
+                    score: 501,
+                    scores: [],
+                    legs: 0,
+                    stats: {
+                        scores100: 0,
+                        scores140: 0,
+                        scores180: 0,
+                        highOut: 0,
+                        best: 0
+                    },
+                    totalThrows: 0,
+                    totalScore: 0
+                },
+                {
+                    name: "Gracz 2",
+                    score: 501,
+                    scores: [],
+                    legs: 0,
+                    stats: {
+                        scores100: 0,
+                        scores140: 0,
+                        scores180: 0,
+                        highOut: 0,
+                        best: 0
+                    },
+                    totalThrows: 0,
+                    totalScore: 0
+                }
+            ],
+            history: [],
+            legsToWin: 3,
+            gameOver: false
+        };
+        
+        // DOM elements
+        const player1ScoresElement = document.getElementById('player1-scores');
+        const player2ScoresElement = document.getElementById('player2-scores');
+        const scoreInput = document.getElementById('score-input');
+        const enterScoreButton = document.getElementById('enter-score');
+        const undoButton = document.getElementById('undo-btn');
+        const newLegButton = document.getElementById('new-leg-btn');
+        const newGameButton = document.getElementById('new-game-btn');
+        const player1CurrentElement = document.getElementById('p1-current');
+        const player2CurrentElement = document.getElementById('p2-current');
+        const player1HeaderElement = document.getElementById('player1-header');
+        const player2HeaderElement = document.getElementById('player2-header');
+        const player1NameInput = document.getElementById('player1-name');
+        const player2NameInput = document.getElementById('player2-name');
+        const gameTypeSelect = document.getElementById('game-type');
+        const gameTypeDisplay = document.getElementById('game-type-display');
+        const applySettingsButton = document.getElementById('apply-settings');
+        
+        // Stats elements
+        const p1Legs = document.getElementById('p1-legs');
+        const p1Scores100 = document.getElementById('p1-100');
+        const p1Scores140 = document.getElementById('p1-140');
+        const p1Scores180 = document.getElementById('p1-180');
+        const p1HighOut = document.getElementById('p1-high-out');
+        const p1Best = document.getElementById('p1-best');
+        const p2Legs = document.getElementById('p2-legs');
+        const p2Scores100 = document.getElementById('p2-100');
+        const p2Scores140 = document.getElementById('p2-140');
+        const p2Scores180 = document.getElementById('p2-180');
+        const p2HighOut = document.getElementById('p2-high-out');
+        const p2Best = document.getElementById('p2-best');
+        const p1Average = document.getElementById('p1-average');
+        const p2Average = document.getElementById('p2-average');
+        
+        // Apply settings
+        function applySettings() {
+            // Update game type
+            const selectedGameType = gameTypeSelect.value;
+            gameState.startingScore = parseInt(selectedGameType);
+            gameTypeDisplay.textContent = selectedGameType;
+            
+            // Update player names
+            const player1Name = player1NameInput.value.trim() || "Gracz 1";
+            const player2Name = player2NameInput.value.trim() || "Gracz 2";
+            
+            gameState.players[0].name = player1Name;
+            gameState.players[1].name = player2Name;
+            
+            // Update player headers
+            player1HeaderElement.textContent = player1Name;
+            player2HeaderElement.textContent = player2Name;
+            
+            // Reset game
+            initializeGame();
+            
+            // Update average displays
+            updatePlayerStats(0);
+            updatePlayerStats(1);
+        }
+        
+        // Initialize the game
+        function initializeGame() {
+            gameState.gameOver = false;
+            document.querySelector(".controls").style.display = "flex";
+
+            // Clear score tables
+            player1ScoresElement.innerHTML = '';
+            player2ScoresElement.innerHTML = '';
+            
+            // Reset player scores and stats
+            player.stats = {
+                scores100: 0,
+                scores140: 0,
+                scores180: 0,
+                highOut: 0,
+                best: 0
+            };
+            player.legs = 0;
+            gameState.players.forEach((player, index) => {
+                player.score = gameState.startingScore;
+                player.scores = [];
+                
+                // Keep totalThrows and totalScore if we want to maintain averages
+                // Uncomment below if you want to reset averages for new game
+                player.totalThrows = 0;
+                player.totalScore = 0;
+                
+                // Update UI
+                updatePlayerScoreDisplay(index);
+            });
+            
+            // Set the current player to Player 1 (index 0)
+            gameState.currentPlayer = 0;
+            
+            // Update UI
+            highlightCurrentPlayer();
+            
+            // Move "First" indicator to player 1
+            document.querySelectorAll('.player-first').forEach(el => el.remove());
+            
+            const player1Header = document.querySelector('.player-section:nth-child(1) .player-header');
+            const firstIndicator = document.createElement('div');
+            firstIndicator.className = 'player-first';
+            firstIndicator.textContent = '- First -';
+            player1Header.appendChild(firstIndicator);
+            
+            // Update stats
+            updatePlayerStats(0);
+            updatePlayerStats(1);
+        }
+        
+        // Initialize a new leg
+        function initializeNewLeg() {
+            // Save current game state to history
+            gameState.history.push(JSON.parse(JSON.stringify(gameState)));
+            
+            gameState.gameOver = false;
+            document.querySelector(".controls").style.display = "flex";
+
+            // Clear score tables
+            player1ScoresElement.innerHTML = '';
+            player2ScoresElement.innerHTML = '';
+            
+            // Reset player scores but keep stats and totals
+            gameState.players.forEach((player, index) => {
+                player.score = gameState.startingScore;
+                player.scores = [];
+                
+                // Don't reset totalThrows and totalScore to maintain average across legs
+                
+                // Update UI
+                updatePlayerScoreDisplay(index);
+            });
+            
+            // Switch starting player for the new leg
+            gameState.currentPlayer = gameState.currentPlayer === 0 ? 1 : 0;
+            
+            // Update UI
+            highlightCurrentPlayer();
+            
+            // Move "First" indicator to the new starting player
+            document.querySelectorAll('.player-first').forEach(el => el.remove());
+            
+            const playerHeader = gameState.currentPlayer === 0 ? 
+                document.querySelector('.player-section:nth-child(1) .player-header') : 
+                document.querySelector('.player-section:nth-child(2) .player-header');
+            
+            const firstIndicator = document.createElement('div');
+            firstIndicator.className = 'player-first';
+            firstIndicator.textContent = '- First -';
+            playerHeader.appendChild(firstIndicator);
+        }
+        
+        // Update player score display
+        function updatePlayerScoreDisplay(playerIndex) {
+            const currentElement = playerIndex === 0 ? player1CurrentElement : player2CurrentElement;
+            currentElement.textContent = gameState.players[playerIndex].score;
+        }
+        
+        // Highlight current player
+        function highlightCurrentPlayer() {
+            if (gameState.currentPlayer === 0) {
+                player1CurrentElement.className = 'current-player';
+                player2CurrentElement.className = 'inactive-player';
+            } else {
+                player1CurrentElement.className = 'inactive-player';
+                player2CurrentElement.className = 'current-player';
+            }
+        }
+        
+        // Update score table
+        function updateScoreTable(playerIndex) {
+            const tableElement = playerIndex === 0 ? player1ScoresElement : player2ScoresElement;
+            const player = gameState.players[playerIndex];
+            
+            // Clear the table first
+            tableElement.innerHTML = '';
+            
+            // Add each score to the table
+            player.scores.forEach((score, index) => {
+                const row = document.createElement('tr');
+                
+                // Turn number
+                const turnCell = document.createElement('td');
+                turnCell.className = 'turn-column';
+                turnCell.textContent = index + 1;
+                row.appendChild(turnCell);
+                
+                // Scored value
+                const scoredCell = document.createElement('td');
+                // Add circle around scores over 100
+                if (score >= 100) {
+                    scoredCell.className = 'scored-circle';
+                }
+                scoredCell.textContent = score;
+                row.appendChild(scoredCell);
+                
+                // Remaining score
+                const remainingCell = document.createElement('td');
+                const remainingScore = gameState.startingScore - player.scores.slice(0, index + 1).reduce((a, b) => a + b, 0);
+                remainingCell.textContent = remainingScore;
+                row.appendChild(remainingCell);
+                
+                tableElement.appendChild(row);
+            });
+        }
+        
+        // Update player stats
+        function updatePlayerStats(playerIndex) {
+            const player = gameState.players[playerIndex];
+            
+            // Update DOM elements
+            if (playerIndex === 0) {
+                p1Legs.textContent = player.legs;
+                p1Scores100.textContent = player.stats.scores100;
+                p1Scores140.textContent = player.stats.scores140;
+                p1Scores180.textContent = player.stats.scores180;
+                p1HighOut.textContent = player.stats.highOut;
+                p1Best.textContent = player.stats.best;
+                
+                // Calculate the sum of all scores for the player
+                const totalScore = player.scores.reduce((sum, score) => sum + score, 0);
+                // Number of turns (each turn represents 3 darts)
+                const turns = player.scores.length;
+                
+                // Calculate and update average per turn (3 darts)
+                const legAvg = turns > 0 ? (totalScore / turns).toFixed(2) : '0.00';
+                
+                // Calculate per dart average
+                const dartAvg = turns > 0 ? (totalScore / (turns * 3)).toFixed(2) : '0.00';
+                
+                p1Average.innerHTML = `${player.name} Średnia: ${legAvg} (${dartAvg}/dart)`;
+            } else {
+                p2Legs.textContent = player.legs;
+                p2Scores100.textContent = player.stats.scores100;
+                p2Scores140.textContent = player.stats.scores140;
+                p2Scores180.textContent = player.stats.scores180;
+                p2HighOut.textContent = player.stats.highOut;
+                p2Best.textContent = player.stats.best;
+                
+                // Calculate the sum of all scores for the player
+                const totalScore = player.scores.reduce((sum, score) => sum + score, 0);
+                // Number of turns (each turn represents 3 darts)
+                const turns = player.scores.length;
+                
+                // Calculate and update average per turn (3 darts)
+                const legAvg = turns > 0 ? (totalScore / turns).toFixed(2) : '0.00';
+                
+                // Calculate per dart average
+                const dartAvg = turns > 0 ? (totalScore / (turns * 3)).toFixed(2) : '0.00';
+                
+                p2Average.innerHTML = `${player.name} Średnia: ${legAvg} (${dartAvg}/dart)`;
+            }
+        }
+        
+        // Enter a score
+        function enterScore() {
+            const score = parseInt(scoreInput.value);
+            
+            if (gameState.gameOver) {
+                alert("The match is already over.");
+                return;
+            }
+
+            // Validate input
+            if (isNaN(score) || score < 0 || score > 180) {
+                alert('Please enter a valid score between 0 and 180.');
+                return;
+            }
+            
+            // Make sure we have a valid player index
+            if (gameState.currentPlayer !== 0 && gameState.currentPlayer !== 1) {
+                console.error("Invalid player index:", gameState.currentPlayer);
+                gameState.currentPlayer = 0; // Reset to valid player
+            }
+            
+            // Check if the score is valid for the current remaining score
+            const currentPlayer = gameState.players[gameState.currentPlayer];
+            
+            // Ensure currentPlayer is defined
+            if (!currentPlayer) {
+                console.error("Current player is undefined");
+                return;
+            }
+            
+            if (score > currentPlayer.score) {
+                alert('Score too high for remaining points.');
+                return;
+            }
+            
+            // Check for valid checkout
+            if (currentPlayer.score - score === 0 && score <= 170) {
+                // Player has won the leg
+                
+                // Update high checkout if this is higher
+                if (score > currentPlayer.stats.highOut) {
+                    currentPlayer.stats.highOut = score;
+                }
+                
+                // Add the score
+                currentPlayer.scores.push(score);
+                currentPlayer.totalThrows++;
+                currentPlayer.totalScore += score;
+                currentPlayer.score = 0;
+                
+                // Update best score if this is higher
+                if (score > currentPlayer.stats.best) {
+                    currentPlayer.stats.best = score;
+                }
+                
+                // Update stats for 100+, 140+, 180
+                updateScoreStats(gameState.currentPlayer, score);
+                
+                // Update score table and stats
+                updateScoreTable(gameState.currentPlayer);
+                updatePlayerStats(gameState.currentPlayer);
+                updatePlayerScoreDisplay(gameState.currentPlayer);
+                
+                // Increment leg win
+                
+
+currentPlayer.legs++;
+document.getElementById(`p${gameState.currentPlayer + 1}-legs`).textContent = currentPlayer.legs;
+
+// Zresetuj statystyki lega (ale nie średnie)
+currentPlayer.stats = {
+    scores100: 0,
+    scores140: 0,
+    scores180: 0,
+    highOut: 0,
+    best: 0
+};
+
+// Zaktualizuj statystyki w UI
+updatePlayerStats(gameState.currentPlayer);
+
+// Sprawdź czy gracz wygrał mecz
+if (currentPlayer.legs >= gameState.legsToWin) {
+    setTimeout(() => {
+        alert(`${currentPlayer.name} wins the match!`);
+        gameState.gameOver = true;
+        document.querySelector('.controls').style.display = 'none';
+    }, 100);
+    return;
+}
+
+
+                
+                // Start a new leg after a delay
+                setTimeout(() => {
+                    alert(`${currentPlayer.name} wins the leg!`);
+                    initializeNewLeg();
+                }, 100);
+                
+                return;
+            }
+            
+            // Regular score processing
+            currentPlayer.scores.push(score);
+            currentPlayer.score -= score;
+            currentPlayer.totalThrows++;
+            currentPlayer.totalScore += score;
+            
+            // Update best score if this is higher
+            if (score > currentPlayer.stats.best) {
+                currentPlayer.stats.best = score;
+            }
+            
+            // Update stats for 100+, 140+, 180
+            updateScoreStats(gameState.currentPlayer, score);
+            
+            // Update UI
+            updateScoreTable(gameState.currentPlayer);
+            updatePlayerStats(gameState.currentPlayer);
+            updatePlayerScoreDisplay(gameState.currentPlayer);
+            
+            // Switch players
+            gameState.currentPlayer = gameState.currentPlayer === 0 ? 1 : 0;
+            highlightCurrentPlayer();
+            
+            // Clear input
+            scoreInput.value = '';
+            scoreInput.focus();
+        }
+        
+        // Update score statistics
+        function updateScoreStats(playerIndex, score) {
+            const player = gameState.players[playerIndex];
+            
+            if (score === 180) {
+                player.stats.scores180++;
+                player.stats.scores140++;
+                player.stats.scores100++;
+            } else if (score >= 140) {
+                player.stats.scores140++;
+                player.stats.scores100++;
+            } else if (score >= 100) {
+                player.stats.scores100++;
+            }
+        }
+        
+        // Undo last move
+        function undoLastMove() {
+            // Get the current player (which is now the next player after the previous move)
+            const previousPlayerIndex = gameState.currentPlayer === 0 ? 1 : 0;
+            const previousPlayer = gameState.players[previousPlayerIndex];
+            
+            // Check if there are scores to undo
+            if (previousPlayer.scores.length === 0) {
+                alert('Nothing to undo.');
+                return;
+            }
+            
+            // Get the last score
+            const lastScore = previousPlayer.scores.pop();
+            
+            // Restore the player's score
+            previousPlayer.score += lastScore;
+            previousPlayer.totalThrows--;
+            previousPlayer.totalScore -= lastScore;
+            
+            // Recalculate stats
+            recalculatePlayerStats(previousPlayerIndex);
+            
+            // Update UI
+            updateScoreTable(previousPlayerIndex);
+            updatePlayerStats(previousPlayerIndex);
+            updatePlayerScoreDisplay(previousPlayerIndex);
+            
+            // Switch back to the previous player
+            gameState.currentPlayer = previousPlayerIndex;
+            highlightCurrentPlayer();
+        }
+        
+        // Recalculate player stats
+        function recalculatePlayerStats(playerIndex) {
+            const player = gameState.players[playerIndex];
+            
+            // Reset counts
+            player.stats.scores100 = 0;
+            player.stats.scores140 = 0;
+            player.stats.scores180 = 0;
+            player.stats.best = 0;
+            
+            // Recalculate from scores
+            player.scores.forEach(score => {
+                if (score === 180) {
+                    player.stats.scores180++;
+                    player.stats.scores140++;
+                    player.stats.scores100++;
+                } else if (score >= 140) {
+                    player.stats.scores140++;
+                    player.stats.scores100++;
+                } else if (score >= 100) {
+                    player.stats.scores100++;
+                }
+                
+                if (score > player.stats.best) {
+                    player.stats.best = score;
+                }
+            });
+        }
+        
+        // Event listeners
+        document.getElementById('enter-score').addEventListener('click', enterScore);
+        document.getElementById('apply-settings').addEventListener('click', applySettings);
+        document.getElementById('undo-btn').addEventListener('click', undoLastMove);
+        document.getElementById('new-leg-btn').addEventListener('click', initializeNewLeg);
+        document.getElementById('new-game-btn').addEventListener('click', initializeGame);
+        
+        // Enter key to submit score
+        document.getElementById('score-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                enterScore();
+            }
+        });
+        
+        // Initialize the game on load
+        window.onload = function() {
+            initializeGame();
+        };
+    </script>
+</body>
+</html>
